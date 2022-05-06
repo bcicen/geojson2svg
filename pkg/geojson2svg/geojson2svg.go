@@ -229,12 +229,14 @@ func drawMultiPoint(sf scaleFunc, w io.Writer, ps [][]float64, attributes string
 }
 
 func drawLineString(sf scaleFunc, w io.Writer, ps [][]float64, attributes string) {
-	path := bytes.NewBufferString("M")
-	for _, p := range ps {
-		x, y := sf(p[0], p[1])
-		fmt.Fprintf(path, "%f %f,", x, y)
+	for n := range ps {
+		if n == len(ps)-1 {
+			return
+		}
+		x1, y1 := sf(ps[n][0], ps[n][1])
+		x2, y2 := sf(ps[n+1][0], ps[n+1][1])
+		fmt.Fprintf(w, `<line x1="%f" y1="%f" x2="%f" y2="%f" %s/>`, x1, y1, x2, y2, attributes)
 	}
-	fmt.Fprintf(w, `<path d="%s"%s/>`, trim(path), attributes)
 }
 
 func drawMultiLineString(sf scaleFunc, w io.Writer, pps [][][]float64, attributes string) {
